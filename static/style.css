@@ -1,0 +1,148 @@
+/* This file was written by AI.
+   Never writing CSS ever again in my life */
+
+/* ==========================================================================
+   Event Planner - Red & Black Theme
+   ========================================================================== */
+
+   @import url('https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap');
+
+   :root {
+     --font-sans: 'Sen', system-ui, sans-serif;
+     
+     /* Red & Black Theme Variables */
+     --color-bg: #050505;              /* Deeper black */
+     --color-surface: #121212;         /* Slightly lighter black for card */
+     --color-border: #2a2a2a;          /* Dark grey border */
+     
+     --color-text: #ededed;
+     --color-text-muted: #9ca3af;
+     
+     /* Red Accents */
+     --color-accent: #dc2626;          /* Vibrant Red */
+     --color-accent-hover: #ef4444;    /* Lighter Red on hover */
+     --color-accent-glow: rgba(220, 38, 38, 0.35); /* Red Glow */
+     
+     --radius-sm: 6px;
+     --radius-md: 12px;
+     --radius-lg: 20px;
+     
+     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+     --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.8); /* Darker shadow for black theme */
+     
+     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+     --duration-fast: 0.2s;
+     --duration-normal: 0.35s;
+   }
+   
+   /* ==========================================================================
+      Reset & base
+      ========================================================================== */
+   
+   *, *::before, *::after {
+     box-sizing: border-box;
+   }
+   
+   html {
+     font-size: 16px;
+     -webkit-font-smoothing: antialiased;
+   }
+   
+   body {
+     font-family: var(--font-sans);
+     background: var(--color-bg);
+     color: var(--color-text);
+     min-height: 100vh;
+     overflow-x: hidden;
+     margin: 0;
+   }
+   
+   /* ==========================================================================
+      Layout – centered card
+      ========================================================================== */
+   
+   .center {
+     margin: 0;
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     width: 90%;
+     max-width: 450px;
+     padding: 3rem 2rem;
+     background: var(--color-surface);
+     border: 1px solid var(--color-border);
+     border-radius: var(--radius-lg);
+     box-shadow: var(--shadow-md);
+     /* Entrance Animation */
+     animation: cardIn 0.6s var(--ease-out) both;
+     text-align: center;
+   }
+   
+   @keyframes cardIn {
+     from {
+       opacity: 0;
+       transform: translate(-50%, -45%) scale(0.95);
+     }
+     to {
+       opacity: 1;
+       transform: translate(-50%, -50%) scale(1);
+     }
+   }
+   
+   /* ==========================================================================
+      Typography & Elements
+      ========================================================================== */
+   
+   h1 {
+     margin: 0 0 1rem;
+     font-size: 2rem;
+     font-weight: 800;
+     color: var(--color-text);
+     letter-spacing: -0.03em;
+   }
+   
+   /* The message text */
+   p.message {
+     font-size: 1.1rem;
+     line-height: 1.6;
+     color: var(--color-text-muted);
+     margin-bottom: 0;
+   }
+   
+   /* Icon styling if you decide to add one */
+   .status-icon {
+     font-size: 3rem;
+     margin-bottom: 1rem;
+     display: inline-block;
+     animation: float 3s ease-in-out infinite;
+   }
+   
+   @keyframes float {
+     0% { transform: translateY(0px); }
+     50% { transform: translateY(-10px); }
+     100% { transform: translateY(0px); }
+   }
+   
+   /* ==========================================================================
+      Links / Footer
+      ========================================================================== */
+   
+   /* Bottom link styling */
+   body > a {
+     position: absolute;
+     bottom: 2rem;
+     left: 50%;
+     transform: translateX(-50%);
+     display: inline-block;
+     padding: 0.5rem 1rem;
+     color: var(--color-text-muted);
+     text-decoration: none;
+     font-size: 0.9rem;
+     font-weight: 600;
+     transition: color var(--duration-fast);
+   }
+   
+   body > a:hover {
+     color: var(--color-accent);
+   }
