@@ -6,34 +6,61 @@
    ========================================================================== */
 
    @import url('https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap');
-
    :root {
-     --font-sans: 'Sen', system-ui, sans-serif;
-     
-     /* Red & Black Theme Variables */
-     --color-bg: #050505;              /* Deeper black */
-     --color-surface: #121212;         /* Slightly lighter black for card */
-     --color-border: #2a2a2a;          /* Dark grey border */
-     
-     --color-text: #ededed;
-     --color-text-muted: #9ca3af;
-     
-     /* Red Accents */
-     --color-accent: #dc2626;          /* Vibrant Red */
-     --color-accent-hover: #ef4444;    /* Lighter Red on hover */
-     --color-accent-glow: rgba(220, 38, 38, 0.35); /* Red Glow */
-     
-     --radius-sm: 6px;
-     --radius-md: 12px;
-     --radius-lg: 20px;
-     
-     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-     --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.8); /* Darker shadow for black theme */
-     
-     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-     --duration-fast: 0.2s;
-     --duration-normal: 0.35s;
-   }
+    --font-sans: 'Sen', system-ui, sans-serif;
+    
+    /* Deep, clean background */
+    --color-bg: #020000;              
+    
+    /* Noticeable card color - Deep Charcoal with a hint of warm brown/red */
+    --color-surface: #1f1414;         
+    --color-border: #332d2d;          
+    
+    --color-text: #f0f0f0;            
+    --color-text-muted: #a0a0a0;      
+    
+    /* Accent Red - Subtle but vibrant */
+    --color-accent: #e63946;          
+    --color-accent-hover: #ff4d5a;    
+    --color-accent-glow: rgba(230, 57, 70, 0.2); 
+    
+    --radius-lg: 20px;
+    --shadow-md: 0 20px 50px rgba(0, 0, 0, 0.7);
+    
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --duration-fast: 0.2s;
+  }
+  
+  /* Updated Layout for better separation */
+  .center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 420px;
+    padding: 3rem 2rem;
+    
+    /* This makes the card pop */
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    
+    /* Entrance Animation */
+    animation: cardIn 0.6s var(--ease-out) both;
+    text-align: center;
+  }
+  
+  /* Subtle glow for the icon to tie in the warmth */
+  .status-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    filter: drop-shadow(0 0 10px var(--color-accent-glow));
+    animation: float 3s ease-in-out infinite;
+  }
    
    /* ==========================================================================
       Reset & base
@@ -61,24 +88,7 @@
       Layout – centered card
       ========================================================================== */
    
-   .center {
-     margin: 0;
-     position: absolute;
-     top: 50%;
-     left: 50%;
-     transform: translate(-50%, -50%);
-     width: 90%;
-     max-width: 450px;
-     padding: 3rem 2rem;
-     background: var(--color-surface);
-     border: 1px solid var(--color-border);
-     border-radius: var(--radius-lg);
-     box-shadow: var(--shadow-md);
-     /* Entrance Animation */
-     animation: cardIn 0.6s var(--ease-out) both;
-     text-align: center;
-   }
-   
+
    @keyframes cardIn {
      from {
        opacity: 0;
