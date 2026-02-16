@@ -1,0 +1,4 @@
+flask
+werkzeug
+psycopg2-binary
+resend

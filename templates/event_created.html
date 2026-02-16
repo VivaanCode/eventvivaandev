@@ -1,0 +1,314 @@
+{% extends "layout.html" %}
+
+{% block title %}Event Created - Success{% endblock %}
+
+{% block content %}
+<style>
+/* Override the center class for success page */
+.center {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 700px !important;
+    margin: 2rem auto !important;
+    padding: 2rem !important;
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-md) !important;
+    animation: fadeIn 0.6s var(--ease-out) both !important;
+    text-align: left !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.success-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 0.6s var(--ease-out) both;
+}
+
+@keyframes bounce {
+    0% {
+        transform: scale(0) rotateY(180deg);
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+    }
+}
+
+.success-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    color: #2ecc71;
+    letter-spacing: -0.02em;
+}
+
+.success-header p {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.event-details {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.detail-value {
+    color: var(--color-text);
+    font-size: 1rem;
+    word-break: break-all;
+}
+
+.url-section {
+    margin: 2rem 0;
+}
+
+.url-section h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+}
+
+.url-box {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.url-text {
+    flex: 1;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    word-break: break-all;
+    font-family: monospace;
+}
+
+.copy-btn {
+    background: var(--color-accent);
+    color: var(--color-text);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.copy-btn:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+}
+
+.copy-btn.copied {
+    background: #2ecc71;
+}
+
+.url-description {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.action-buttons a,
+.action-buttons button {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+    border: none;
+    font-family: var(--font-sans);
+}
+
+.primary-btn {
+    background: var(--color-accent);
+    color: var(--color-text);
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+}
+
+.primary-btn:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+}
+
+.secondary-btn {
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+.secondary-btn:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+.info-box {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid #2ecc71;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #2ecc71;
+}
+
+.info-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .center {
+        padding: 1.5rem;
+    }
+    
+    .url-box {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .copy-btn {
+        width: 100%;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .success-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+
+<div class="center">
+    <div class="success-header">
+        <div class="success-icon">✨</div>
+        <h1>Event Created!</h1>
+        <p>Your event is ready to go. Share it with your guests!</p>
+    </div>
+
+    <div class="info-box">
+        <strong>Event Title:</strong> {{ event.title }}
+    </div>
+
+    <div class="url-section">
+        <h3>Event URLs</h3>
+        
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text); font-weight: 600;">
+                Regular Event Link
+            </label>
+            <div class="url-box">
+                <span class="url-text" id="eventUrl">{{ event_url }}</span>
+                <button class="copy-btn" onclick="copyToClipboard('eventUrl', this)">Copy</button>
+            </div>
+            {% if has_passcode %}
+            <span class="url-description">Share this link if you want guests to enter the passcode manually</span>
+            {% else %}
+            <span class="url-description">Anyone with this link can access your event immediately</span>
+            {% endif %}
+        </div>
+
+        {% if has_passcode %}
+        <div style="margin-top: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text); font-weight: 600;">
+                Shareable Link (Passcode Included)
+            </label>
+            <div class="url-box">
+                <span class="url-text" id="shareableUrl">{{ shareable_url }}</span>
+                <button class="copy-btn" onclick="copyToClipboard('shareableUrl', this)">Copy</button>
+            </div>
+            <span class="url-description">Share this link so your guests don't need to enter the passcode</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('event_page', event_uuid=event.uuid) }}" class="primary-btn">View Event</a>
+        <a href="{{ url_for('create_event') }}" class="secondary-btn">Create Another Event</a>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(elementId, button) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(() => {
+        alert('Failed to copy. Please try again.');
+    });
+}
+</script>
+
+{% endblock %}

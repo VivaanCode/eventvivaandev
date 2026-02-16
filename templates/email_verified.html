@@ -1,0 +1,171 @@
+{% extends "layout.html" %}
+
+{% block title %}Email Verified Successfully{% endblock %}
+
+{% block content %}
+<style>
+.success-container {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 2rem auto !important;
+    padding: 3rem 2rem !important;
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-md) !important;
+    animation: fadeIn 0.6s var(--ease-out) both !important;
+    text-align: center !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2.5rem;
+    color: white;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.success-message {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.success-details {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid #4ade80;
+    color: #22c55e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.back-btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all var(--duration-fast);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+}
+
+.back-btn:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+</style>
+
+<div class="success-container">
+    <!-- Animated success icon -->
+    <div class="success-icon">✓</div>
+    
+    <h1 class="success-title">Email Verified!</h1>
+    
+    <p class="success-message">
+        Your email address has been successfully verified. You're all set for the event!
+    </p>
+    
+    <div class="success-details">
+        <strong>🎉 What's next?</strong><br>
+        Your RSVP is now confirmed. We'll send you event updates and reminders at this email address.
+    </div>
+    
+    {% if event_uuid %}
+    <a href="/event/{{ event_uuid }}" class="back-btn">
+        ← Back to Event
+    </a>
+    {% else %}
+    <a href="/" class="back-btn">
+        ← Back to Home
+    </a>
+    {% endif %}
+</div>
+
+<!-- Add some confetti animation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colors = ['#4ade80', '#22c55e', '#fbbf24', '#f59e0b', '#e63946'];
+    
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }, i * 100);
+    }
+});
+</script>
+{% endblock %}

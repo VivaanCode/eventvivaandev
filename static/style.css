@@ -1,158 +1,153 @@
-/* This file was written by AI.
-   Never writing CSS ever again in my life */
-
 /* ==========================================================================
-   Event Planner - Red & Black Theme
+   Event Planner - Red & Black Theme (Fixed Layout)
    ========================================================================== */
 
-   @import url('https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap');
-   :root {
-    --font-sans: 'Sen', system-ui, sans-serif;
-    
-    /* Deep, clean background */
-    --color-bg: #020000;              
-    
-    /* Noticeable card color - Deep Charcoal with a hint of warm brown/red */
-    --color-surface: #1f1414;         
-    --color-border: #332d2d;          
-    
-    --color-text: #f0f0f0;            
-    --color-text-muted: #a0a0a0;      
-    
-    /* Accent Red - Subtle but vibrant */
-    --color-accent: #e63946;          
-    --color-accent-hover: #ff4d5a;    
-    --color-accent-glow: rgba(230, 57, 70, 0.2); 
-    
-    --radius-lg: 20px;
-    --shadow-md: 0 20px 50px rgba(0, 0, 0, 0.7);
-    
-    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-    --duration-fast: 0.2s;
-  }
-  
-  /* Updated Layout for better separation */
-  .center {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 420px;
-    padding: 3rem 2rem;
-    
-    /* This makes the card pop */
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    
-    /* Entrance Animation */
-    animation: cardIn 0.6s var(--ease-out) both;
-    text-align: center;
-  }
-  
-  /* Subtle glow for the icon to tie in the warmth */
-  .status-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    display: inline-block;
-    filter: drop-shadow(0 0 10px var(--color-accent-glow));
-    animation: float 3s ease-in-out infinite;
-  }
-   
-   /* ==========================================================================
-      Reset & base
-      ========================================================================== */
-   
-   *, *::before, *::after {
-     box-sizing: border-box;
-   }
-   
-   html {
-     font-size: 16px;
-     -webkit-font-smoothing: antialiased;
-   }
-   
-   body {
-     font-family: var(--font-sans);
-     background: var(--color-bg);
-     color: var(--color-text);
-     min-height: 100vh;
-     overflow-x: hidden;
-     margin: 0;
-   }
-   
-   /* ==========================================================================
-      Layout – centered card
-      ========================================================================== */
-   
+@import url('https://fonts.googleapis.com/css2?family=Sen:wght@400;600;700;800&display=swap');
 
-   @keyframes cardIn {
-     from {
-       opacity: 0;
-       transform: translate(-50%, -45%) scale(0.95);
-     }
-     to {
-       opacity: 1;
-       transform: translate(-50%, -50%) scale(1);
-     }
-   }
-   
-   /* ==========================================================================
-      Typography & Elements
-      ========================================================================== */
-   
-   h1 {
-     margin: 0 0 1rem;
-     font-size: 2rem;
-     font-weight: 800;
-     color: var(--color-text);
-     letter-spacing: -0.03em;
-   }
-   
-   /* The message text */
-   p.message {
-     font-size: 1.1rem;
-     line-height: 1.6;
-     color: var(--color-text-muted);
-     margin-bottom: 0;
-   }
-   
-   /* Icon styling if you decide to add one */
-   .status-icon {
-     font-size: 3rem;
-     margin-bottom: 1rem;
-     display: inline-block;
-     animation: float 3s ease-in-out infinite;
-   }
-   
-   @keyframes float {
-     0% { transform: translateY(0px); }
-     50% { transform: translateY(-10px); }
-     100% { transform: translateY(0px); }
-   }
-   
-   /* ==========================================================================
-      Links / Footer
-      ========================================================================== */
-   
-   /* Bottom link styling */
-   body > a {
-     position: absolute;
-     bottom: 2rem;
-     left: 50%;
-     transform: translateX(-50%);
-     display: inline-block;
-     padding: 0.5rem 1rem;
-     color: var(--color-text-muted);
-     text-decoration: none;
-     font-size: 0.9rem;
-     font-weight: 600;
-     transition: color var(--duration-fast);
-   }
-   
-   body > a:hover {
-     color: var(--color-accent);
-   }
+:root {
+  --font-sans: 'Sen', system-ui, sans-serif;
+  --color-bg: #020000;
+  --color-surface: #1f1414;
+  --color-border: #332d2d;
+  --color-text: #f0f0f0;
+  --color-text-muted: #a0a0a0;
+  --color-accent: #e63946;
+  --color-accent-hover: #ff4d5a;
+  --color-accent-glow: rgba(230, 57, 70, 0.2);
+  --radius-lg: 20px;
+  --shadow-md: 0 20px 50px rgba(0, 0, 0, 0.7);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 0.2s;
+}
+
+/* ==========================================================================
+   Reset & Base
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  
+  /* Flexbox Centering: The magic that replaces 'top: 50%' */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  min-height: 100vh;
+  position: relative; /* Anchor for the footer */
+  padding: 2rem 0 5rem; /* Space for the footer at the bottom */
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Layout – Centered Card
+   ========================================================================== */
+
+.center {
+  width: 90%;
+  max-width: 420px;
+  padding: 3rem 2rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  
+  /* Animation */
+  animation: cardIn 0.6s var(--ease-out) both;
+  z-index: 2;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   Typography & Elements
+   ========================================================================== */
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.03em;
+}
+
+p.message {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+}
+
+.status-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  filter: drop-shadow(0 0 10px var(--color-accent-glow));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ==========================================================================
+   Links / Footer
+   ========================================================================== */
+
+.footer-links {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.footer-links a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: 
+    color var(--duration-fast), 
+    background var(--duration-fast), 
+    transform var(--duration-fast);
+}
+
+.footer-links a:hover {
+  color: var(--color-accent);
+  background: rgba(230, 57, 70, 0.1);
+  transform: translateY(-2px);
+}
+
+.footer-links a:active {
+  transform: translateY(0);
+}

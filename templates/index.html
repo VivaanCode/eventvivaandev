@@ -1,7 +1,25 @@
-{% extends "layout.html" %}
-{% block content %}
-<p class="message">
-    You can't create an event right now.<br>
-    Please check back later.
-</p>
-{% endblock %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Planner</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+  <div class="center">
+    <p class="message">
+        You can't create an event right now.<br>
+        Please check back later.
+    </p>
+  </div>
+
+  <div class="footer-links"><a href="/admin/create-event">Admin</a></div>
+
+  <!--<script src="/static/script.js"></script>-->
+</body>
+</html>

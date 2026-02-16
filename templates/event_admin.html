@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Admin - {{ event.title }}</title>
+    <style>
+        .admin-card { max-width: 900px; width: 95%; margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; color: var(--color-text); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { color: var(--color-accent); font-size: 0.8rem; text-transform: uppercase; }
+        .verified-badge { color: #4ade80; font-weight: bold; }
+        .pending-badge { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="center admin-card">
+        <h1>Attendee List</h1>
+        <p class="message">{{ event.title }}</p>
+        
+        {% if email_failures > 0 %}
+        <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; color: #f59e0b; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600;">
+            ⚠️ {{ email_failures }} RSVP(s) with unverified emails (older than 1 hour)
+        </div>
+        {% endif %}
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Verified</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rsvp in rsvps %}
+                <tr>
+                    <td>{{ rsvp.name }}</td>
+                    <td>{{ rsvp.email }}</td>
+                    <td>{{ rsvp.phone or '-' }}</td>
+                    <td>
+                        {% if rsvp.email_verified %}
+                            <span class="verified-badge">✓</span>
+                        {% else %}
+                            <span class="pending-badge">?</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 0.7rem;">{{ rsvp.rsvp_date.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="footer-links">
+        <a href="{{ url_for('event_page', event_uuid=event.uuid) }}">← Back to Event</a>
+    </div>
+</body>
+</html>

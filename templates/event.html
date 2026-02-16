@@ -33,24 +33,67 @@ body > a {
     border: 1px solid var(--color-border) !important;
     box-shadow: var(--shadow-md) !important;
     z-index: 1000 !important;
+    color: var(--color-text-muted) !important;
+    text-decoration: none !important;
+    transition: all var(--duration-fast) !important;
 }
 
 body > a:hover {
-    background: var(--color-accent) !important;
-    border-color: var(--color-accent) !important;
+    background: var(--color-border) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text) !important;
+}
+
+/* Override footer link content for event pages */
+.footer-links a::after {
+    content: "Admin Dashboard" !important;
+}
+
+.footer-links a {
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+.footer-links::after {
+    content: "Admin Dashboard";
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    background: var(--color-surface);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: all var(--duration-fast);
+    cursor: pointer;
+}
+
+.footer-links::after:hover {
+    background: var(--color-border);
+    border-color: var(--color-border);
+    color: var(--color-text);
 }
 </style>
 
 <div class="event-container">
     <!-- Event Header -->
     <div class="event-header">
+        {% if event.image %}
         <img src="{{ event.image }}" alt="{{ event.title }}" class="event-image">
+        {% endif %}
         <div class="event-header-content">
             <h1>{{ event.title }}</h1>
             <div class="event-meta">
                 <span class="date">{{ event.date }} at {{ event.time }}</span>
                 <span class="location">{{ event.location }}</span>
+                {% if event.price %}
                 <span class="price">${{ event.price }}</span>
+                {% else %}
+                <span class="price">Free</span>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -73,6 +116,7 @@ body > a:hover {
                     <p>{{ event.location }}</p>
                     <p class="address">{{ event.address }}</p>
                 </div>
+                {% if event.capacity %}
                 <div class="detail-item">
                     <h3>Capacity</h3>
                     <p>{{ event.registered }} / {{ event.capacity }} registered</p>
@@ -80,50 +124,53 @@ body > a:hover {
                         <div class="progress" data-width="{{ ((event.registered / event.capacity) * 100)|round(0) }}"></div>
                     </div>
                 </div>
+                {% endif %}
                 <div class="detail-item">
                     <h3>Organizer</h3>
                     <p>{{ event.organizer }}</p>
                 </div>
             </div>
 
-            <div class="event-tags">
-                <h3>Tags</h3>
+            <div class="rsvp-stats">
+                <strong>{{ rsvp_count }}</strong> people have already RSVP'd
+            </div>
+
+            {% if event.tags and event.tags|length > 0 %}
+            <div class="tags">
+                <span>Tags:</span>
                 {% for tag in event.tags %}
-                <span class="tag">{{ tag }}</span>
+                    <span class="tag">{{ tag }}</span>
                 {% endfor %}
             </div>
+            {% endif %}
         </div>
 
         <!-- Sidebar -->
         <div class="event-sidebar">
             <div class="rsvp-card">
+                {% if event.price %}
                 <div class="price-display">
                     <span class="price-amount">${{ event.price }}</span>
                     <span class="price-label">per person</span>
                 </div>
+                {% else %}
+                <div class="price-display">
+                    <span class="price-amount">FREE</span>
+                    <span class="price-label">event</span>
+                </div>
+                {% endif %}
                 
+                {% if event.capacity %}
                 <div class="availability">
                     <span class="spots-left">{{ event.capacity - event.registered }} spots left</span>
                 </div>
+                {% endif %}
 
                 <button class="rsvp-btn" onclick="openRSVPModal()">
                     RSVP Now
                 </button>
-
-                <div class="rsvp-info">
-                    <p>🎫 Free cancellation up to 24 hours before event</p>
-                    <p>📧 Confirmation will be sent to your email</p>
-                </div>
             </div>
 
-            <div class="share-card">
-                <h3>Share This Event</h3>
-                <div class="share-buttons">
-                    <button class="share-btn" onclick="shareEvent('facebook')">Facebook</button>
-                    <button class="share-btn" onclick="shareEvent('twitter')">Twitter</button>
-                    <button class="share-btn" onclick="shareEvent('linkedin')">LinkedIn</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -136,19 +183,33 @@ body > a:hover {
             <span class="close" onclick="closeRSVPModal()">&times;</span>
         </div>
         
-        {% if rsvp_success %}
-        <div class="success-message">
-            🎉 RSVP confirmed! You will receive a confirmation email shortly.
-        </div>
-        {% endif %}
-        
         {% if rsvp_error %}
-        <div class="error-message">
-            {{ rsvp_error }}
+        <div style="padding: 0 2rem;">
+            <div class="error-message">
+                {{ rsvp_error }}
+            </div>
         </div>
         {% endif %}
         
-        <form method="POST" action="{{ url_for('rsvp_event', event_id=event.id) }}" class="rsvp-form">
+        {% if rsvp_warning and show_confirm %}
+        <div style="padding: 0 2rem;">
+            <div class="error-message">
+                {{ rsvp_warning }}
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('confirm_rsvp_anyway', event_uuid=event.uuid) }}" class="rsvp-form">
+            <input type="hidden" name="name" value="{{ rsvp_warning_data.name }}">
+            <input type="hidden" name="email" value="{{ rsvp_warning_data.email }}">
+            <input type="hidden" name="phone" value="{{ rsvp_warning_data.phone }}">
+            <input type="hidden" name="additional_info" value="{{ rsvp_warning_data.additional_info }}">
+            <div class="form-actions">
+                <button type="button" class="cancel-btn" onclick="closeRSVPModal()">Go Back</button>
+                <button type="submit" class="submit-rsvp-btn">Continue Anyway</button>
+            </div>
+        </form>
+        {% else %}
+        
+        <form method="POST" action="{{ url_for('rsvp_event', event_uuid=event.uuid) }}" class="rsvp-form">
             <div class="form-group">
                 <label for="name">Full Name *</label>
                 <input type="text" id="name" name="name" required>
@@ -174,6 +235,25 @@ body > a:hover {
                 <button type="submit" class="submit-rsvp-btn">Confirm RSVP</button>
             </div>
         </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>RSVP Confirmed!</h2>
+            <span class="close" onclick="closeSuccessModal()">&times;</span>
+        </div>
+        <div style="padding: 0 2rem;">
+            <div class="success-message">
+                🎉 Success! You will receive a confirmation email shortly.
+            </div>
+        </div>
+        <div style="padding: 2rem;">
+            <button type="button" class="submit-rsvp-btn" onclick="closeSuccessModal()" style="width: 100%;">Close</button>
+        </div>
     </div>
 </div>
 
@@ -338,8 +418,9 @@ body > a:hover {
     color: #2ecc71;
     padding: 1rem;
     border-radius: 12px;
-    margin-bottom: 1.5rem;
+    margin: 0 1rem 1.5rem 1rem;
     font-weight: 600;
+    line-height: 1.5;
 }
 
 .error-message {
@@ -348,8 +429,9 @@ body > a:hover {
     color: var(--color-accent);
     padding: 1rem;
     border-radius: 12px;
-    margin-bottom: 1.5rem;
+    margin: 0 1rem 1.5rem 1rem;
     font-weight: 600;
+    line-height: 1.5;
 }
 
 @media (max-width: 768px) {
@@ -749,6 +831,24 @@ document.addEventListener('DOMContentLoaded', function() {
             bar.style.width = width + '%';
         }
     });
+    
+    // Auto-open modal based on URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // If there's a success, show success modal
+    if (urlParams.has('rsvp_success')) {
+        openSuccessModal();
+    }
+    // If there's an error or warning, show RSVP modal
+    else if (urlParams.has('rsvp_error') || urlParams.has('rsvp_warning')) {
+        openRSVPModal();
+    }
+    {% if show_confirm %}
+    // Also auto-open if we have confirm flag from template
+    else if ({{ 'true' if show_confirm else 'false' }}) {
+        openRSVPModal();
+    }
+    {% endif %}
 });
 
 // RSVP Modal Functions
@@ -762,11 +862,26 @@ function closeRSVPModal() {
     document.body.style.overflow = 'auto';
 }
 
+// Success Modal Functions
+function openSuccessModal() {
+    document.getElementById('successModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
 // Close modal when clicking outside of it
 window.onclick = function(event) {
-    const modal = document.getElementById('rsvpModal');
-    if (event.target == modal) {
+    const rsvpModal = document.getElementById('rsvpModal');
+    const successModal = document.getElementById('successModal');
+    if (event.target == rsvpModal) {
         closeRSVPModal();
+    }
+    if (event.target == successModal) {
+        closeSuccessModal();
     }
 }
 
@@ -774,6 +889,7 @@ window.onclick = function(event) {
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeRSVPModal();
+        closeSuccessModal();
     }
 });
 
@@ -782,27 +898,15 @@ function handleRSVP() {
     openRSVPModal();
 }
 
-function shareEvent(platform) {
-    const url = window.location.href;
-    const title = document.querySelector('h1').textContent;
-    
-    let shareUrl = '';
-    
-    switch(platform) {
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-            break;
-        case 'linkedin':
-            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-            break;
+// Override footer link to go to admin dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    const footerLinks = document.querySelector('.footer-links');
+    if (footerLinks) {
+        footerLinks.style.cursor = 'pointer';
+        footerLinks.onclick = function() {
+            window.location.href = '{{ url_for("event_admin", event_uuid=event.uuid) }}';
+        };
     }
-    
-    if (shareUrl) {
-        window.open(shareUrl, '_blank', 'width=600,height=400');
-    }
-}
+});
 </script>
 {% endblock %}

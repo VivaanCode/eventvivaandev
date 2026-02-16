@@ -178,78 +178,170 @@
     </div>
     {% endif %}
 
-    <form method="POST" class="admin-form">
+    <form method="POST" class="admin-form" onsubmit="return validateForm()">
         <div class="form-row">
             <div class="form-group">
-                <label for="admin_code">Admin Code</label>
+                <label for="admin_code">Admin Code *</label>
                 <input type="password" id="admin_code" name="admin_code" required>
             </div>
             <div class="form-group">
                 <label for="passcode">Event Passcode</label>
-                <input type="text" id="passcode" name="passcode" required placeholder="e.g., EVENT2024">
+                <input type="password" id="passcode" name="passcode" minlength="6" placeholder="Leave blank for no password">
+                <small style="color: var(--color-text-muted); margin-top: 0.25rem; display: block;">Leave blank for no password protection</small>
             </div>
         </div>
 
         <div class="form-group full-width">
-            <label for="title">Event Title</label>
-            <input type="text" id="title" name="title" required>
+            <label for="title">Event Title *</label>
+            <input type="text" id="title" name="title" required minlength="3" maxlength="255" placeholder="Enter event title">
         </div>
 
         <div class="form-group full-width">
-            <label for="description">Description</label>
-            <textarea id="description" name="description" required></textarea>
+            <label for="description">Description *</label>
+            <textarea id="description" name="description" required minlength="10" placeholder="Describe your event in detail"></textarea>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="date">Date</label>
+                <label for="date">Date *</label>
                 <input type="date" id="date" name="date" required>
             </div>
             <div class="form-group">
-                <label for="time">Time</label>
-                <input type="text" id="time" name="time" placeholder="e.g., 09:00 AM" required>
+                <label for="time">Time *</label>
+                <input type="time" id="time" name="time" required placeholder="HH:MM">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="location">Location</label>
-                <input type="text" id="location" name="location" required>
+                <label for="location">Location Name *</label>
+                <input type="text" id="location" name="location" required minlength="3" placeholder="e.g., Convention Center">
             </div>
             <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" id="address" name="address" required>
+                <label for="address">Address *</label>
+                <input type="text" id="address" name="address" required minlength="5" placeholder="e.g., 123 Main St, City, State">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="capacity">Capacity</label>
-                <input type="number" id="capacity" name="capacity" required min="1">
+                <input type="number" id="capacity" name="capacity" min="1" step="1" placeholder="Leave blank for unlimited">
+                <small style="color: var(--color-text-muted); margin-top: 0.25rem; display: block;">Leave blank for unlimited capacity</small>
             </div>
             <div class="form-group">
                 <label for="price">Price ($)</label>
-                <input type="number" id="price" name="price" step="0.01" min="0" required>
+                <input type="number" id="price" name="price" step="0.01" min="0" placeholder="Leave blank for free">
+                <small style="color: var(--color-text-muted); margin-top: 0.25rem; display: block;">Leave blank if event is free</small>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="organizer">Organizer</label>
-                <input type="text" id="organizer" name="organizer" required>
+                <label for="organizer">Organizer *</label>
+                <input type="text" id="organizer" name="organizer" required minlength="2" placeholder="Your name or organization">
             </div>
             <div class="form-group">
                 <label for="image">Image URL</label>
-                <input type="url" id="image" name="image" placeholder="https://...">
+                <input type="url" id="image" name="image" placeholder="https://... (optional)">
+                <small style="color: var(--color-text-muted); margin-top: 0.25rem; display: block;">Leave blank to skip image</small>
             </div>
         </div>
 
         <div class="form-group full-width">
             <label for="tags">Tags (comma-separated)</label>
-            <input type="text" id="tags" name="tags" placeholder="technology, AI, networking">
+            <input type="text" id="tags" name="tags" placeholder="technology, networking, AI">
         </div>
 
         <button type="submit" class="submit-btn">Create Event</button>
     </form>
 </div>
 {% endblock %}
+
+<script>
+function validateForm() {
+    const adminCode = document.getElementById('admin_code').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const date = document.getElementById('date').value.trim();
+    const time = document.getElementById('time').value.trim();
+    const location = document.getElementById('location').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const organizer = document.getElementById('organizer').value.trim();
+
+    // Check required fields
+    if (!adminCode) {
+        alert('Admin code is required');
+        return false;
+    }
+    if (!title || title.length < 3) {
+        alert('Event title must be at least 3 characters');
+        return false;
+    }
+    if (!description || description.length < 10) {
+        alert('Description must be at least 10 characters');
+        return false;
+    }
+    if (!date) {
+        alert('Event date is required');
+        return false;
+    }
+    if (!time) {
+        alert('Event time is required');
+        return false;
+    }
+    if (!location || location.length < 3) {
+        alert('Location must be at least 3 characters');
+        return false;
+    }
+    if (!address || address.length < 5) {
+        alert('Address must be at least 5 characters');
+        return false;
+    }
+    if (!organizer || organizer.length < 2) {
+        alert('Organizer name must be at least 2 characters');
+        return false;
+    }
+
+    // Validate optional numeric fields if provided
+    const capacity = document.getElementById('capacity').value.trim();
+    const price = document.getElementById('price').value.trim();
+    
+    if (capacity && (isNaN(capacity) || capacity < 1)) {
+        alert('Capacity must be a number greater than 0');
+        return false;
+    }
+    
+    if (price && (isNaN(price) || price < 0)) {
+        alert('Price cannot be negative');
+        return false;
+    }
+
+    // Validate date is not in the past
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+        alert('Event date cannot be in the past');
+        return false;
+    }
+
+    // Validate image URL if provided
+    const image = document.getElementById('image').value.trim();
+    if (image && !isValidUrl(image)) {
+        alert('Image URL must be a valid URL');
+        return false;
+    }
+
+    return true;
+}
+
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+</script>

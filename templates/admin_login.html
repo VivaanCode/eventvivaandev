@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
-{% block title %}Event Access - {{ event_title }}{% endblock %}
+{% block title %}Admin Access - {{ event_title }}{% endblock %}
 
 {% block content %}
 <style>
-/* Override the center class for password entry */
+/* Override the center class for admin login */
 .center {
     position: static !important;
     transform: none !important;
@@ -33,7 +33,7 @@
     }
 }
 
-.password-form {
+.admin-form {
     margin-top: 2rem;
 }
 
@@ -117,12 +117,26 @@
     font-size: 1rem;
     margin: 0;
 }
+
+.admin-badge {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--color-accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
 </style>
 
 <div class="center">
-
+    <div class="admin-badge">🔐 ADMIN ACCESS</div>
+    
+    <div class="event-info">
         <h2>{{ event_title }}</h2>
-        <p>This event is password protected. Please enter the passcode to continue.</p>
+        <p>Enter the admin code to access the attendee management dashboard</p>
+    </div>
 
     {% if error %}
     <div class="error-message">
@@ -130,12 +144,12 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('authenticate_event', event_uuid=event_uuid) }}" class="password-form">
+    <form method="POST" action="{{ url_for('admin_login', event_uuid=event_uuid) }}" class="admin-form">
         <div class="form-group">
-            <label for="password">Event Passcode</label>
-            <input type="password" id="password" name="password" required autofocus>
+            <label for="admin_code">Admin Code</label>
+            <input type="password" id="admin_code" name="admin_code" required autofocus>
         </div>
-        <button type="submit" class="submit-btn">Access Event</button>
+        <button type="submit" class="submit-btn">Access Admin Dashboard</button>
     </form>
 </div>
 {% endblock %}
