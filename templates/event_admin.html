@@ -23,6 +23,12 @@
         </div>
         {% endif %}
         
+        {% if segment_errors > 0 %}
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #dc2626; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600;">
+            ❌ {{ segment_errors }} RSVP(s) with segment errors
+        </div>
+        {% endif %}
+        
         <table>
             <thead>
                 <tr>
@@ -30,6 +36,7 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Verified</th>
+                    <th>Segment Status</th>
                     <th>Date</th>
                 </tr>
             </thead>
@@ -44,6 +51,15 @@
                             <span class="verified-badge">✓</span>
                         {% else %}
                             <span class="pending-badge">?</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rsvp.segment_error %}
+                            <span style="color: #ef4444; font-size: 0.8rem;" title="{{ rsvp.segment_error }}">❌ Error</span>
+                        {% elif rsvp.segment_id %}
+                            <span style="color: #4ade80; font-size: 0.8rem;">✓ Added</span>
+                        {% else %}
+                            <span style="color: #6b7280; font-size: 0.8rem;">-</span>
                         {% endif %}
                     </td>
                     <td style="font-size: 0.7rem;">{{ rsvp.rsvp_date.strftime('%Y-%m-%d') }}</td>

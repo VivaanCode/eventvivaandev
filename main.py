@@ -75,19 +75,20 @@ def init_db():
     if not conn: return False
     try:
         cur = conn.cursor()
-        # Events table remains the same...
+        # Events table with segment_id field
         cur.execute("""
             CREATE TABLE IF NOT EXISTS events (
                 id SERIAL PRIMARY KEY,
                 uuid VARCHAR(36) UNIQUE NOT NULL,
                 passcode_hash VARCHAR(255),
                 event_data JSONB NOT NULL,
+                segment_id VARCHAR(36),
                 date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 date_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         
-        # Updated RSVPs table with verification fields
+        # Updated RSVPs table with verification fields and segment_id
         cur.execute("""
             CREATE TABLE IF NOT EXISTS rsvps (
                 id SERIAL PRIMARY KEY,
@@ -98,6 +99,8 @@ def init_db():
                 additional_info TEXT,
                 email_verified BOOLEAN DEFAULT FALSE,
                 verification_token VARCHAR(36),
+                segment_id VARCHAR(36),
+                segment_error TEXT,
                 rsvp_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (event_uuid) REFERENCES events(uuid)
             )
@@ -132,6 +135,39 @@ def send_verification_email(email, name, token):
         print(f"Resend error: {e}")
         return False
 
+def add_contact_to_segment(email, name, segment_id):
+    """Add contact to Resend segment"""
+    if not segment_id:
+        return None, "No segment ID provided"
+    
+    try:
+        # First create the contact
+        contact_params = {
+            "email": email,
+            "first_name": name.split()[0] if name and ' ' in name else name,
+            "last_name": name.split()[-1] if name and ' ' in name else "",
+        }
+        
+        contact_response = resend.Contacts.create(contact_params)
+        contact_id = contact_response.get('id')
+        
+        if not contact_id:
+            return None, "Failed to create contact"
+        
+        # Then add to segment
+        segment_params = {
+            "segment_id": segment_id,
+            "contact_id": contact_id,
+        }
+        
+        response = resend.Contacts.Segments.add(segment_params)
+        return True, None
+        
+    except Exception as e:
+        error_msg = f"Failed to add contact to segment: {str(e)}"
+        print(error_msg)
+        return False, error_msg
+
 # Load event from database
 def load_event(event_uuid):
     conn = get_db_connection()
@@ -160,7 +196,7 @@ def get_event_from_db(event_uuid):
     
     try:
         cur = conn.cursor()
-        cur.execute("SELECT event_data, passcode_hash FROM events WHERE uuid = %s", (event_uuid,))
+        cur.execute("SELECT event_data, passcode_hash, segment_id FROM events WHERE uuid = %s", (event_uuid,))
         result = cur.fetchone()
         cur.close()
         conn.close()
@@ -168,11 +204,12 @@ def get_event_from_db(event_uuid):
         if result:
             event_data = json.loads(result[0]) if isinstance(result[0], str) else result[0]
             passcode_hash = result[1]
-            return event_data, passcode_hash
-        return None, None
+            segment_id = result[2]
+            return event_data, passcode_hash, segment_id
+        return None, None, None
     except Exception as e:
         print(f"Error loading event {event_uuid}: {e}")
-        return None, None
+        return None, None, None
 
 # Check for duplicate RSVP by name, email, or phone
 def check_rsvp_duplicate(event_uuid, name, email, phone):
@@ -219,7 +256,7 @@ def check_rsvp_duplicate(event_uuid, name, email, phone):
         return False, [], None
 
 # Save event to database
-def save_event_to_db(event_data, passcode=None):
+def save_event_to_db(event_data, passcode=None, segment_id=None):
     conn = get_db_connection()
     if not conn:
         return None
@@ -234,14 +271,15 @@ def save_event_to_db(event_data, passcode=None):
         # Using COALESCE in the UPDATE ensures that if EXCLUDED.passcode_hash is NULL, 
         # it keeps the existing value in the table.
         cur.execute("""
-            INSERT INTO events (uuid, passcode_hash, event_data, date_updated)
-            VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+            INSERT INTO events (uuid, passcode_hash, event_data, segment_id, date_updated)
+            VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
             ON CONFLICT (uuid) DO UPDATE SET
                 passcode_hash = COALESCE(EXCLUDED.passcode_hash, events.passcode_hash),
                 event_data = EXCLUDED.event_data,
+                segment_id = COALESCE(EXCLUDED.segment_id, events.segment_id),
                 date_updated = CURRENT_TIMESTAMP
             RETURNING uuid
-        """, (event_uuid, passcode_hash, json.dumps(event_data)))
+        """, (event_uuid, passcode_hash, json.dumps(event_data), segment_id))
         
         result = cur.fetchone()
         conn.commit()
@@ -259,7 +297,7 @@ def index():
 @app.route("/event/<event_uuid>")
 def event_page(event_uuid):
     """Display event page with optional password protection"""
-    event, passcode_hash = get_event_from_db(event_uuid)
+    event, passcode_hash, segment_id = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     
@@ -437,16 +475,23 @@ def rsvp_event(event_uuid):
         
         return redirect(url_for('event_page', event_uuid=event_uuid, rsvp_warning=1, show_confirm=1))
     
-    # Save RSVP with verification token
+    # Save RSVP with verification token and segment handling
     verification_token = str(uuid.uuid4())
+    segment_success = None
+    segment_error = None
+    
+    # Add to segment if segment_id is provided
+    if segment_id:
+        segment_success, segment_error = add_contact_to_segment(email, name, segment_id)
+    
     conn = get_db_connection()
     if conn:
         try:
             cur = conn.cursor()
             cur.execute("""
-                INSERT INTO rsvps (event_uuid, name, email, phone, additional_info, verification_token)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (event_uuid, name, email, phone, additional_info, verification_token))
+                INSERT INTO rsvps (event_uuid, name, email, phone, additional_info, verification_token, segment_id, segment_error)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (event_uuid, name, email, phone, additional_info, verification_token, segment_id, segment_error))
             conn.commit()
             cur.close()
             conn.close()
@@ -501,10 +546,11 @@ def event_admin(event_uuid):
     conn = get_db_connection()
     rsvps = []
     email_failures = 0
+    segment_errors = 0
     if conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT name, email, phone, additional_info, email_verified, rsvp_date 
+            SELECT name, email, phone, additional_info, email_verified, rsvp_date, segment_error 
             FROM rsvps WHERE event_uuid = %s ORDER BY rsvp_date DESC
         """, (event_uuid,))
         columns = [desc[0] for desc in cur.description]
@@ -518,10 +564,17 @@ def event_admin(event_uuid):
         """, (event_uuid,))
         email_failures = cur.fetchone()[0]
         
+        # Check for segment errors
+        cur.execute("""
+            SELECT COUNT(*) FROM rsvps 
+            WHERE event_uuid = %s AND segment_error IS NOT NULL
+        """, (event_uuid,))
+        segment_errors = cur.fetchone()[0]
+        
         cur.close()
         conn.close()
     
-    return render_template("event_admin.html", event=event, rsvps=rsvps, email_failures=email_failures)
+    return render_template("event_admin.html", event=event, rsvps=rsvps, email_failures=email_failures, segment_errors=segment_errors)
 
 @app.route("/event/<event_uuid>/admin/login", methods=["GET", "POST"])
 def admin_login(event_uuid):
@@ -622,6 +675,7 @@ def create_event():
     capacity = request.form.get('capacity', '').strip()
     price = request.form.get('price', '').strip()
     passcode = request.form.get('passcode', '').strip()
+    segment_id = request.form.get('segment_id', '').strip()
     image = request.form.get('image', '').strip()
     tags = request.form.get('tags', '').strip()
     
@@ -669,7 +723,7 @@ def create_event():
     }
     
     # Save to database
-    event_uuid = save_event_to_db(event_data, passcode if passcode else None)
+    event_uuid = save_event_to_db(event_data, passcode if passcode else None, segment_id if segment_id else None)
     if event_uuid:
         return redirect(url_for('event_created_success', event_uuid=event_uuid, passcode=passcode if passcode else ''))
     else:
