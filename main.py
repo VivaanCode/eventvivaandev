@@ -403,7 +403,7 @@ def event_page(event_uuid):
 @app.route("/event/<event_uuid>/authenticate", methods=["POST"])
 def authenticate_event(event_uuid):
     """Handle event password authentication"""
-    event, passcode_hash = get_event_from_db(event_uuid)
+    event, passcode_hash, segment_id = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     
@@ -431,7 +431,7 @@ def rsvp_event(event_uuid):
     if is_rate_limited(f"rsvp_{client_ip}", max_requests=3, window_seconds=300):
         return redirect(url_for('event_page', event_uuid=event_uuid, rsvp_error="Too many RSVP attempts. Please try again later."))
     
-    event, _ = get_event_from_db(event_uuid)
+    event, _, segment_id = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     
@@ -504,7 +504,7 @@ def rsvp_event(event_uuid):
                 # Still continue with RSVP but note the email failure
             
             # Update registered count
-            event, _ = get_event_from_db(event_uuid)
+            event, _, _ = get_event_from_db(event_uuid)
             event['registered'] = event.get('registered', 0) + 1
             save_event_to_db(event, None)
             
@@ -540,7 +540,7 @@ def event_admin(event_uuid):
     if not session.get('admin_authenticated'):
         return redirect(url_for('admin_login', event_uuid=event_uuid))
     
-    event, _ = get_event_from_db(event_uuid)
+    event, _, _ = get_event_from_db(event_uuid)
     if not event: return "Event not found", 404
     
     conn = get_db_connection()
@@ -579,7 +579,7 @@ def event_admin(event_uuid):
 @app.route("/event/<event_uuid>/admin/login", methods=["GET", "POST"])
 def admin_login(event_uuid):
     """Admin login page"""
-    event, _ = get_event_from_db(event_uuid)
+    event, _, _ = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     
@@ -605,7 +605,7 @@ def confirm_rsvp_anyway(event_uuid):
     if not session.get(session_key):
         return redirect(url_for('event_page', event_uuid=event_uuid))
     
-    event, _ = get_event_from_db(event_uuid)
+    event, _, _ = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     
@@ -732,7 +732,7 @@ def create_event():
 @app.route("/event/<event_uuid>/created", methods=["GET"])
 def event_created_success(event_uuid):
     """Show success page with event URLs"""
-    event, passcode_hash = get_event_from_db(event_uuid)
+    event, passcode_hash, segment_id = get_event_from_db(event_uuid)
     if not event:
         return "Event not found", 404
     

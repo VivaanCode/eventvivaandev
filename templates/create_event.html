@@ -87,6 +87,34 @@
     box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
+/* Styling for date and time inputs */
+.form-group input[type="date"],
+.form-group input[type="time"] {
+    cursor: pointer;
+}
+
+/* Styling for date/time input in Chrome, Edge, and Opera */
+.form-group input[type="date"]::-webkit-calendar-picker-indicator,
+.form-group input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(0.9);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+/* Ensure better visibility for the picker icon */
+.form-group input[type="date"]::-webkit-outer-spin-button,
+.form-group input[type="date"]::-webkit-inner-spin-button,
+.form-group input[type="time"]::-webkit-outer-spin-button,
+.form-group input[type="time"]::-webkit-inner-spin-button {
+    display: none;
+}
+
+/* Firefox date input styling */
+.form-group input[type="date"]::placeholder,
+.form-group input[type="time"]::placeholder {
+    color: var(--color-text-muted);
+}
+
 .submit-btn {
     width: 100%;
     background: var(--color-accent);
